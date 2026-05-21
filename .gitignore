@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environments
+.venv/
+.venv314/
+
+# VSCode
+.vscode/
+
+# Outputs
+outputs/
+
+# Logs
+*.log
+
+# Environment variables
+.env
+
+# Model weights
+*.pt
+*.engine
+*.trt
+
+# OS
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Temporary files
+tmp/
+temp/
+
+# HuggingFace cache
+.cache/
+
+# CUDA cache
+.nv/
+
+# DeepStream generated files
+*.so
+*.a
+build/
+
+# Screenshots/videos
+*.mp4
+*.jpg
+*.png
