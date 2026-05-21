@@ -1,0 +1,293 @@
+=========================================
+YOLO11 + BYTETrack COLLISION PIPELINE
+FULL FRESH GPU SETUP GUIDE
+=========================================
+
+-----------------------------------
+1. UPDATE SYSTEM
+-----------------------------------
+
+apt update && apt upgrade -y
+
+-----------------------------------
+2. INSTALL BASIC TOOLS
+-----------------------------------
+
+apt install -y \
+git \
+wget \
+curl \
+vim \
+python3 \
+python3-pip \
+python3-dev \
+python3-venv \
+build-essential \
+cmake \
+g++ \
+pkg-config
+
+-----------------------------------
+3. VERIFY NVIDIA GPU
+-----------------------------------
+
+nvidia-smi
+
+-----------------------------------
+4. INSTALL DOCKER
+-----------------------------------
+
+apt install -y docker.io
+
+systemctl start docker
+
+systemctl enable docker
+
+Verify:
+
+docker --version
+
+-----------------------------------
+5. INSTALL NVIDIA CONTAINER TOOLKIT
+-----------------------------------
+
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
+gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+
+curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
+sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+
+apt update
+
+apt install -y nvidia-container-toolkit
+
+nvidia-ctk runtime configure --runtime=docker
+
+systemctl restart docker
+
+-----------------------------------
+6. VERIFY GPU INSIDE DOCKER
+-----------------------------------
+
+docker run --rm --gpus all nvidia/cuda:12.1.0-base-ubuntu22.04 nvidia-smi
+
+-----------------------------------
+7. CREATE PROJECT
+-----------------------------------
+
+mkdir -p /workspace/traffic-collision-project
+
+cd /workspace/traffic-collision-project
+
+-----------------------------------
+8. RUN NVIDIA DEEPSTREAM CONTAINER
+-----------------------------------
+
+docker run -it --rm --gpus all \
+--network=host \
+-v $PWD:/workspace \
+nvcr.io/nvidia/deepstream:7.0-gc-triton-devel
+
+-----------------------------------
+9. INSIDE CONTAINER
+-----------------------------------
+
+cd /workspace
+
+-----------------------------------
+10. INSTALL PYTHON DEPENDENCIES
+-----------------------------------
+
+pip install -r requirements.txt
+
+-----------------------------------
+11. INSTALL PYTORCH CUDA
+-----------------------------------
+
+pip3 install torch torchvision torchaudio \
+--index-url https://download.pytorch.org/whl/cu121
+
+-----------------------------------
+12. INSTALL ULTRALYTICS
+-----------------------------------
+
+pip3 install ultralytics
+
+-----------------------------------
+13. INSTALL BYTETrack SUPPORT
+-----------------------------------
+
+pip3 install supervision
+
+-----------------------------------
+14. VERIFY INSTALLATIONS
+-----------------------------------
+
+python3 -c "import cv2, torch, ultralytics, supervision; print('ALL OK')"
+
+Expected:
+ALL OK
+
+-----------------------------------
+15. CREATE MODELS FOLDER
+-----------------------------------
+
+mkdir -p /workspace/models
+
+cd /workspace/models
+
+-----------------------------------
+16. DOWNLOAD YOLO11 MODEL
+-----------------------------------
+
+wget https://github.com/ultralytics/assets/releases/download/v8.3.0/yolo11l.pt
+
+-----------------------------------
+17. VERIFY MODEL
+-----------------------------------
+
+ls
+
+Expected:
+yolo11l.pt
+
+-----------------------------------
+18. CREATE PROJECT STRUCTURE
+-----------------------------------
+
+cd /workspace
+
+mkdir -p app
+mkdir -p outputs
+mkdir -p outputs/videos
+mkdir -p outputs/logs
+mkdir -p outputs/screenshots
+mkdir -p sample_videos
+mkdir -p tests
+
+-----------------------------------
+19. FIX PERMISSIONS
+-----------------------------------
+
+chmod -R 777 /workspace
+
+-----------------------------------
+20. ADD SAMPLE VIDEO
+-----------------------------------
+
+Place test video here:
+
+/workspace/sample_videos/crash.mp4
+
+-----------------------------------
+21. RUN PIPELINE
+-----------------------------------
+
+cd /workspace
+
+python3 app/main.py
+
+-----------------------------------
+22. EXPECTED OUTPUTS
+-----------------------------------
+
+OUTPUT VIDEO:
+outputs/videos/output.mp4
+
+COLLISION LOGS:
+outputs/logs/collision_log.json
+
+SCREENSHOTS:
+outputs/screenshots/
+
+-----------------------------------
+23. VERIFY GPU USAGE
+-----------------------------------
+
+watch -n 1 nvidia-smi
+
+You should see:
+- python process
+- GPU memory usage
+- CUDA utilization
+
+-----------------------------------
+24. VERIFY YOLO GPU
+-----------------------------------
+
+python3
+
+Inside Python:
+
+import torch
+
+print(torch.cuda.is_available())
+
+print(torch.cuda.get_device_name(0))
+
+Expected:
+True
+NVIDIA GPU NAME
+
+exit()
+
+-----------------------------------
+25. COMMON FIXES
+-----------------------------------
+
+IF CUDA NOT DETECTED:
+
+Reinstall torch CUDA build.
+
+-----------------------------------
+
+IF ULTRALYTICS ERROR:
+
+pip3 install --upgrade ultralytics
+
+-----------------------------------
+
+IF OPENCV ERROR:
+
+apt install -y python3-opencv
+
+-----------------------------------
+
+IF DOCKER GPU NOT WORKING:
+
+systemctl restart docker
+
+-----------------------------------
+
+IF PERMISSION ERROR:
+
+chmod -R 777 /workspace
+
+-----------------------------------
+
+IF MODEL NOT FOUND:
+
+Check:
+ls /workspace/models
+
+-----------------------------------
+FINAL RESULT
+-----------------------------------
+
+You will get:
+
+✔ YOLO11 large detection
+✔ ByteTrack tracking
+✔ Trajectory analytics
+✔ Collision reasoning
+✔ Output MP4 video
+✔ JSON collision logs
+✔ Screenshot capture
+✔ GPU acceleration
+✔ Real-time analytics pipeline
+✔ Much higher detection quality
+✔ Better bounding boxes
+✔ Better practical collision intelligence
